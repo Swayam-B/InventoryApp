@@ -4,6 +4,14 @@ import jwt from 'jsonwebtoken';
 
 const router = Router();
 
+// Cross-site cookies (Vercel frontend ↔ Render backend) require SameSite=None
+// and Secure. Locally we keep SameSite=Strict over http. Driven by env so the
+// same code works in both setups.
+const COOKIE_SAMESITE = process.env.COOKIE_SAMESITE || 'Strict';
+const COOKIE_SECURE = process.env.COOKIE_SECURE
+  ? process.env.COOKIE_SECURE === 'true'
+  : COOKIE_SAMESITE.toLowerCase() === 'none';
+
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
@@ -22,8 +30,8 @@ router.post('/login', loginLimiter, (req, res) => {
 
   res.cookie('token', token, {
     httpOnly: true,
-    secure: true,
-    sameSite: 'Strict',
+    secure: COOKIE_SECURE,
+    sameSite: COOKIE_SAMESITE,
     maxAge: 30 * 24 * 60 * 60 * 1000,
   });
 

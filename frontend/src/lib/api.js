@@ -1,5 +1,7 @@
 // Thin fetch wrapper. Always sends cookies so the JWT travels with each request.
-const BASE = '/api';
+// Local dev uses the Vite proxy (/api → backend). In production set
+// VITE_API_URL to the deployed backend origin, e.g. https://your-api.onrender.com
+const BASE = `${import.meta.env.VITE_API_URL || ''}/api`;
 
 async function request(path, options = {}) {
   const res = await fetch(`${BASE}${path}`, {

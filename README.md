@@ -67,6 +67,29 @@ The default PIN is `1901` (set via `SECRET_APP_PIN`).
 | GET    | `/api/items?needsRestock=true` | Shopping list w/ computed path |
 | GET    | `/api/search?q=...` | `$text` + `$lookup` aggregation, returns path |
 
+## Deployment (Frontend → Vercel, Backend → Render)
+
+The frontend and backend deploy as two independent services.
+
+### Backend on Render
+1. Push this repo to GitHub, then in Render: **New → Blueprint** and point it at
+   the repo. Render reads `render.yaml` and creates the `inventory-backend` web
+   service (root `backend/`).
+2. Set the secret env vars in the Render dashboard (marked `sync: false`):
+   `MONGO_URI`, `JWT_SECRET`, `SECRET_APP_PIN`, the four `AWS_*` values, and
+   `FRONTEND_ORIGIN` (your Vercel URL once you have it).
+3. `COOKIE_SAMESITE=None` and `COOKIE_SECURE=true` are preset so the auth cookie
+   works cross-site.
+
+### Frontend on Vercel
+1. In Vercel: **Add New → Project**, import the repo, set **Root Directory** to
+   `frontend`. The included `frontend/vercel.json` handles the Vite build + SPA
+   routing.
+2. Add an env var `VITE_API_URL` = your Render backend URL (e.g.
+   `https://inventory-backend.onrender.com`, no trailing slash).
+3. After the first deploy, copy the Vercel URL back into Render's
+   `FRONTEND_ORIGIN` and into the S3 bucket CORS `AllowedOrigins`.
+
 ## Notes
 
 - **Atomic quantity updates** prevent race conditions; decrement uses a MongoDB

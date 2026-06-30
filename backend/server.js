@@ -14,6 +14,10 @@ import searchRouter from './routes/search.js';
 
 const app = express();
 
+// Render (and most hosts) sit behind a reverse proxy. Trusting it lets Express
+// see the real protocol/IP so Secure cookies and rate-limiting work correctly.
+app.set('trust proxy', 1);
+
 app.use(cors({
   origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
   credentials: true,
@@ -25,6 +29,9 @@ mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
   .catch((err) => { console.error('MongoDB connection error:', err); process.exit(1); });
+
+// Public health check (used by Render).
+app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
 // Public auth route (rate-limited PIN login).
 app.use('/api/auth', authRouter);
