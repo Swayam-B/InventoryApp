@@ -14,10 +14,19 @@ import searchRouter from './routes/search.js';
 
 const app = express();
 
+// --- UPDATED CORS CONFIGURATION ---
+const allowedOrigins = [
+    'http://localhost:5173', 
+    'https://swayambatra.com', 
+    'https://inventory-app-phi-ruby.vercel.app'
+];
+
 app.use(cors({
-  origin: process.env.FRONTEND_ORIGIN || 'http://localhost:5173',
-  credentials: true,
+    origin: allowedOrigins,
+    credentials: true 
 }));
+// ----------------------------------
+
 app.use(express.json());
 app.use(cookieParser());
 
