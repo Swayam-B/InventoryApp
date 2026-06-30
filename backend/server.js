@@ -12,6 +12,18 @@ import containersRouter from './routes/containers.js';
 import itemsRouter from './routes/items.js';
 import searchRouter from './routes/search.js';
 
+// Fail fast with a clear message if required config is missing, rather than
+// a cryptic driver error deep in the stack.
+const REQUIRED_ENV = ['MONGO_URI', 'JWT_SECRET', 'SECRET_APP_PIN'];
+const missing = REQUIRED_ENV.filter((k) => !process.env[k]);
+if (missing.length) {
+  console.error(
+    `Missing required environment variable(s): ${missing.join(', ')}.\n` +
+      'Set them in your hosting provider (e.g. Render dashboard) or backend/.env.'
+  );
+  process.exit(1);
+}
+
 const app = express();
 
 // Render (and most hosts) sit behind a reverse proxy. Trusting it lets Express
